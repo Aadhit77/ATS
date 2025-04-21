@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ATS Login / Signup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Welcome to ATS</h1>
+
+    <form method="POST">
+        <select name="role" required>
+            <option value="applicant">Applicant</option>
+            <option value="hr">HR</option>
+        </select>
+
+        <!-- Hidden field to determine login or signup -->
+        <input type="hidden" name="form_type" id="form_type" value="login">
+
+        <div class="wrapper">
+            <div class="card-switch">
+                <label class="switch">
+                    <input class="toggle" type="checkbox" onchange="toggleForm()"/>
+                    <span class="slider"></span>
+                    <span class="card-side"></span>
+
+                    <div class="flip-card__inner">
+                        <!-- Login Card -->
+                        <div class="flip-card__front flip-card_front">
+                            <div class="title">Log in</div>
+                            <div class="flip-card__form">
+                                <input type="email" placeholder="Email" name="email" class="flip-card__input login-field" required />
+                                <input type="password" placeholder="Password" name="password" class="flip-card__input login-field" required />
+                                <button type="submit" class="flip-card__btn">Submit</button>
+                            </div>
+                        </div>
+
+                        <!-- Signup Card -->
+                        <div class="flip-card__back flip-card_back">
+                            <div class="title">Sign up</div>
+                            <div class="flip-card__form">
+                                <input type="text" placeholder="Name" name="name" class="flip-card__input signup-field" required />
+                                <input type="email" placeholder="Email" name="email" class="flip-card__input signup-field" required />
+                                <input type="password" placeholder="Password" name="password" class="flip-card__input signup-field" required />
+                                <button type="submit" class="flip-card__btn">Confirm!</button>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        function toggleForm() {
+            const formTypeInput = document.getElementById('form_type');
+            const toggle = document.querySelector('.toggle');
+            const isSignup = toggle.checked;
+
+            // Update form type
+            formTypeInput.value = isSignup ? 'signup' : 'login';
+
+            // Toggle required fields
+            document.querySelectorAll('.login-field').forEach(input => {
+                input.required = !isSignup;
+            });
+
+            document.querySelectorAll('.signup-field').forEach(input => {
+                input.required = isSignup;
+            });
+        }
+
+        // Run toggleForm on page load to set correct field requirements
+        window.onload = () => {
+            toggleForm();
+        };
+
+        // Ensure form_type is updated before submission
+        document.querySelector('form').addEventListener('submit', () => {
+            toggleForm();
+        });
+    </script>
+</body>
+</html>

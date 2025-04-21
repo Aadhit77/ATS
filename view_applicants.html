@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Applicants</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Background gradient */
+        body {
+            background: linear-gradient(to bottom right, #2a3d66, #1a2b3b);
+            min-height: 100vh;
+            padding-top: 50px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+
+        h2 {
+            font-weight: 700;
+            color: #fefefe;
+            margin-bottom: 40px;
+        }
+
+        .table {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .table-dark {
+            background-color: #1c2b41;
+            color: white;
+        }
+
+        .table th, .table td {
+            padding: 12px 20px;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .table-bordered {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Hover effect on table rows */
+        .table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transform: translateY(-5px);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            background-color: #3c4f76;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Card header title hover effect */
+        .card-header:hover {
+            background-color: #2c3d58;
+            transform: scale(1.03);
+            transition: 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header text-center">
+                All Applicants
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Job</th>
+                            <th>Status</th>
+                            <th>Applied At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in applicants %}
+                        <tr>
+                            <td>{{ a.name }}</td>
+                            <td>{{ a.email }}</td>
+                            <td>{{ a.job }}</td>
+                            <td>{{ a.status }}</td>
+                            <td>{{ a.applied_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

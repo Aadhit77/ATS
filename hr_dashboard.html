@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HR Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-glow {
+            position: relative;
+            background: #111;
+            color: #fff;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            z-index: 1;
+            transition: 0.3s;
+        }
+
+        .btn-glow::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            z-index: -1;
+            border-radius: inherit;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .btn-glow:hover::before {
+            opacity: 1;
+        }
+
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #0d6efd;
+            color: white;
+            font-size: 28px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .fab:hover {
+            transform: scale(1.05);
+            background: #0056d2;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white">
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Welcome to the HR Dashboard</h1>
+            <div>
+                <button class="btn btn-outline-light me-2" onclick="toggleMode()"> Switch Theme</button>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card p-4">
+            <h4 class="mb-4">Submitted Resumes</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered table-dark table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Job</th>
+                            <th>Location</th>
+                            <th>Experience</th>
+                            <th>Fairness</th>
+                            <th>Skills</th>
+                            <th>Bias Flags</th>
+                            <th>Resume</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for applicant in applicants %}
+                        <tr>
+                            <td>{{ applicant.name }}</td>
+                            <td>{{ applicant.email }}</td>
+                            <td>{{ applicant.job }}</td>
+                            <td>{{ applicant.location }}</td>
+                            <td>{{ applicant.experience }}</td>
+                            <td>
+                                <div class="progress" style="height: 8px; background: #444;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         style="width: {{ applicant.fairness_score }}%;"
+                                         aria-valuenow="{{ applicant.fairness_score }}"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small>{{ applicant.fairness_score }}%</small>
+                            </td>
+                            <td>{{ applicant.skills_detected }}</td>
+                            <td>
+                                {% for flag in applicant.bias_flags.split(',') %}
+                                    <div>{{ flag.strip() }}</div>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('download_resume', filename=applicant.resume_filename) }}" class="btn btn-sm btn-primary">Download</a>
+                            </td>
+                            <td>{{ applicant.status }}</td>
+                            <td>
+                                <form action="{{ url_for('update_status') }}" method="POST" class="d-flex align-items-center gap-2">
+                                    <input type="hidden" name="applicant_id" value="{{ applicant.id }}">
+                                    <select name="status" class="form-select form-select-sm bg-dark text-white border-light">
+                                        <option value="Pending" {% if applicant.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Shortlisted" {% if applicant.status == 'Shortlisted' %}selected{% endif %}>Shortlisted</option>
+                                        <option value="Rejected" {% if applicant.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-success">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="border-light">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('post_job') }}" class="btn btn-glow">Post Job</a>
+                <a href="{{ url_for('view_applicants') }}" class="btn btn-light">View All Applicants</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <a href="{{ url_for('post_job') }}" class="fab">+</a>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dark Mode Toggle -->
+    <script>
+        function toggleMode() {
+            document.body.classList.toggle('bg-dark');
+            document.body.classList.toggle('bg-light');
+            document.body.classList.toggle('text-white');
+            document.body.classList.toggle('text-dark');
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.toggle('bg-secondary');
+                card.classList.toggle('bg-white');
+            });
+        }
+    </script>
+</body>
+</html>

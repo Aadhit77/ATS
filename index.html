@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS - Applicant Tracking System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Applicant Tracking System</h2>
+
+        <table class="table table-bordered mt-4">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Resume</th>
+                    <th>Status</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="applicantTable">
+                <!-- Applicants will be loaded dynamically here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchApplicants();
+    });
+
+    function fetchApplicants() {
+        fetch('/api/getApplicants')
+            .then(response => response.json())
+            .then(data => {
+                let tableContent = "";
+                data.forEach(applicant => {
+                    tableContent += `
+                        <tr>
+                            <td>${applicant.name}</td>
+                            <td>${applicant.email}</td>
+                            <td><a href="/uploads/${applicant.resume}" class="btn btn-primary btn-sm" target="_blank">Download</a></td>
+                            <td id="status-${applicant.id}">${applicant.status}</td>
+                            <td>
+                                <input type="number" id="rating-${applicant.id}" min="1" max="5" value="${applicant.rating || ''}" class="form-control w-50 d-inline">
+                                <button class="btn btn-warning btn-sm" onclick="rateApplicant(${applicant.id})">Rate</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="approveApplicant(${applicant.id}, '${applicant.email}')">Approve</button>
+                                <button class="btn btn-danger btn-sm" onclick="rejectApplicant(${applicant.id})">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                document.getElementById("applicantTable").innerHTML = tableContent;
+            });
+    }
+
+    function rateApplicant(applicantId) {
+        const rating = document.getElementById(`rating-${applicantId}`).value;
+        fetch(`/api/rateApplicant`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: applicantId, rating })
+        }).then(() => fetchApplicants());
+    }
+
+    function approveApplicant(id, email) {
+        let rating = document.getElementById(`rating-${id}`).value;
+        fetch('/api/approveApplicant', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, email: email, rating: rating })
+        }).then(response => response.json()).then(() => {
+            alert("Applicant Approved & Email Sent!");
+            fetchApplicants();
+        });
+    }
+
+    function rejectApplicant(id) {
+        fetch('/api/rejectApplicant', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        }).then(response => response.json()).then(() => {
+            alert("Applicant Rejected!");
+            fetchApplicants();
+        });
+    }
+    </script>
+</body>
+</html>

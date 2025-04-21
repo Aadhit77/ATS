@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #2C3E50, #4CA1AF);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .navbar {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .table {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transition: background-color 0.3s;
+        }
+
+        .badge-status {
+            padding: 0.4em 0.7em;
+            border-radius: 0.5rem;
+            font-size: 0.9em;
+        }
+
+        .badge-status.Pending { background-color: #ffc107; color: #212529; }
+        .badge-status.Shortlisted { background-color: #28a745; }
+        .badge-status.Rejected { background-color: #dc3545; }
+
+        .badge-flagged {
+            background-color: #ff4e50;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .navbar-nav .nav-item .nav-link {
+            font-size: 1.1em;
+            color: #fff;
+        }
+
+        .navbar-nav .nav-item .nav-link:hover {
+            color: #4CA1AF;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">ATS System</a>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('listing') }}">Jobs</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('apply') }}">Apply</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h2 class="text-center mb-4">Applicant Dashboard</h2>
+
+        {% if applicants %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped mt-4">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Job</th>
+                        <th>Status</th>
+                        <th>Fairness Score</th>
+                        <th>Skills</th>
+                        <th>Bias Flags</th>
+                        <th>Preferred Location</th>
+                        <th>Experience</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in applicants %}
+                    <tr>
+                        <td>{{ a.name }}</td>
+                        <td>{{ a.email }}</td>
+                        <td>{{ a.job }}</td>
+                        <td><span class="badge-status {{ a.status }}">{{ a.status }}</span></td>
+                        <td>{{ a.fairness_score }}</td>
+                        <td>{{ a.skills_detected }}</td>
+                        <td>
+                            {% if a.bias_flags %}
+                                <span class="badge-flagged">{{ a.bias_flags }}</span>
+                            {% else %}
+                                None
+                            {% endif %}
+                        </td>
+                        <td>{{ a.location }}</td>
+                        <td>{{ a.experience }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p class="text-center text-muted">You haven't submitted any applications yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
