@@ -1,1 +1,1 @@
-# ATS
+# The Applicant Tracking System (ATS) is a comprehensive web-based platform designed to streamline the recruitment process for both job applicants and hiring managers. It simplifies job applications, resume analysis, applicant management, and hiring decisions in a centralized and user-friendly interface.
